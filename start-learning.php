@@ -112,18 +112,17 @@ $client->setDeveloperKey($apiKey); // Replace with your YouTube Data API key
 // Create a YouTube service object
 $youtube = new Google_Service_YouTube($client);
 
+
 // YouTube API endpoint for searching
 $apiUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=" . urlencode($searchQuery) . "&maxResults=5&key={$apiKey}";
 
-// Fetch search results with error handling
+// Fetch search results
+$response = file_get_contents($apiUrl);
 $response = @file_get_contents($apiUrl);
 if ($response === FALSE) {
     die("Error limit crossed !fetching data from YouTube API.");
 }
 $searchResults = json_decode($response, true);
-if (json_last_error() !== JSON_ERROR_NONE) {
-    die("Error decoding JSON response: " . json_last_error_msg());
-}
 
 // Close the database connection
 $conn->close();
@@ -155,40 +154,18 @@ $conn->close();
 
         <h3>Lessons</h3>
         <?php
-        // Sequential learning topics
-        $learningSequence = [
-            "Introduction to $course_title",
-            "Uses of $course_title",
-            "$course_title Operators",
-            "$course_title Data Types",
-            "$course_title Control Statements",
-            "$course_title Conditional Statements",
-            "$course_title Loop Statements",
-            "$course_title Arrays",
-            "Advanced $course_title Topics"
-        ];
+       
+      
+// Check if results are returned
+if (!empty($searchResults['items'])) {
+    foreach ($searchResults['items'] as $item) {
+        $videoId = $item['id']['videoId'];
+        $title = $item['snippet']['title'];
+        $description = $item['snippet']['description'];
+        $thumbnail = $item['snippet']['thumbnails']['high']['url'];
 
-        // Loop through each topic in the learning sequence
-        foreach ($learningSequence as $topic) {
-            // Fetch videos for the current topic using the YouTube API
-            try {
-                $searchResponse = $youtube->search->listSearch('snippet', [
-                    'q' => $topic,
-                    'type' => 'video',
-                    'maxResults' => 1,
-                ]);
-            } catch (Exception $e) {
-                echo "<p>Error fetching YouTube data: " . htmlspecialchars($e->getMessage()) . "</p>";
-                continue;
-            }
 
-            if (!empty($searchResponse['items'])) {
-                foreach ($searchResponse['items'] as $item) {
-                    $videoId = $item['id']['videoId'];
-                    $title = $item['snippet']['title'];
-                    $description = $item['snippet']['description'];
-                    $thumbnail = $item['snippet']['thumbnails']['high']['url'];
-                    ?>
+           ?>
         <div class="lesson">
             <h3><?php echo htmlspecialchars($title); ?></h3>
             <p><?php echo nl2br(htmlspecialchars($description)); ?></p>
@@ -197,13 +174,11 @@ $conn->close();
         </div>
         <hr>
         <?php
-                }
-            } else {
-                // Fallback message for topics with no videos
-                echo "<p>No videos found for the topic: " . htmlspecialchars($topic) . "</p>";
-            }
-        }
-        ?>
+           }
+        } else {
+            echo "No videos found for the query '{$searchQuery}'.";
+        }?>
+
 
 
         <h3>Assignments</h3>
