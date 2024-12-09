@@ -110,17 +110,7 @@ CREATE TABLE IF NOT EXISTS completed_courses (
 
 
 
-CREATE TABLE `googleusers` (
-  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `email` varchar(100) NOT NULL DEFAULT '',
-  `first_name` varchar(50) NOT NULL DEFAULT '',
-  `last_name` varchar(50) NOT NULL DEFAULT '',
-  `gender` varchar(50) NOT NULL DEFAULT '',
-  `full_name` varchar(100) NOT NULL DEFAULT '',
-  `picture` varchar(255) NOT NULL DEFAULT '',
-  `verifiedEmail` int(11) NOT NULL DEFAULT 0,
-  `token` varchar(255) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 ALTER TABLE users
 ADD COLUMN verified_email INT(11) DEFAULT 0,
